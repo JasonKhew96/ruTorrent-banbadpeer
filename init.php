@@ -7,6 +7,6 @@ $req = new rXMLRPCRequest($theSettings->getAbsScheduleCommand(
     getCmd('execute') . '={sh,-c,' . escapeshellarg(Utility::getPHP()) . ' ' . escapeshellarg($rootPath . '/plugins/banbadpeer/update.php') . ' ' . escapeshellarg(User::getUser()) . ' & exit 0}'
 ));
 if (!$req->success()) {
-    $jResult .= "plugin.disable(); noty('trafic: '+theUILang.pluginCantStart,'error');";
+    $jResult .= "plugin.disable(); noty('banbadpeer: '+theUILang.pluginCantStart,'error');";
     exit(0);
 }
