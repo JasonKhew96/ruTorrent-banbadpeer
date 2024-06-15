@@ -28,10 +28,17 @@ if (chdir($path)) {
             $peerIP = $reqPeerList->strings[$i * 3 + 1];
             $peerID = $reqPeerList->strings[$i * 3 + 2];
             if (preg_match($badPeerRegex, $peerID)) {
-                $reqBanPeer = new rXMLRPCRequest(array(
-                    new rXMLRPCCommand("p.banned.set", array($magnetHash . ":p" . $peerHashID, 1)),
-                    new rXMLRPCCommand("p.disconnect", $magnetHash . ":p" . $peerHashID),
-                ));
+                $reqBanPeer = NULL;
+                if ($shadowBan) {
+                    $reqBanPeer = new rXMLRPCRequest(array(
+                        new rXMLRPCCommand("p.snubbed.set", array($magnetHash . ":p" . $peerHashID, 1)),
+                    ));
+                } else {
+                    $reqBanPeer = new rXMLRPCRequest(array(
+                        new rXMLRPCCommand("p.banned.set", array($magnetHash . ":p" . $peerHashID, 1)),
+                        new rXMLRPCCommand("p.disconnect", $magnetHash . ":p" . $peerHashID),
+                    ));
+                }
                 if (!$reqBanPeer->success()) {
                     // error
                     exit(0);
