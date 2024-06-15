@@ -16,18 +16,20 @@ if (chdir($path)) {
     }
     foreach ($reqDownloadList->strings as $magnetHash) {
         $reqPeerList = new rXMLRPCRequest(array(
-            new rXMLRPCCommand("p.multicall", array($magnetHash, "", getCmd("p.id="), getCmd("p.address="), getCmd("p.id_html="), getCmd("p.banned") . "=0")),
+            new rXMLRPCCommand("p.multicall", array($magnetHash, "", getCmd("p.id="), getCmd("p.address="), getCmd("p.id_html="), getCmd("p.banned="), getCmd("p.snubbed="))),
         ));
         $reqPeerList->setParseByTypes();
         if (!$reqPeerList->success()) {
             // error
             exit(0);
         }
-        for ($i = 0; $i < count($reqPeerList->strings) / 3; $i++) {
-            $peerHashID = $reqPeerList->strings[$i * 3];
-            $peerIP = $reqPeerList->strings[$i * 3 + 1];
-            $peerID = $reqPeerList->strings[$i * 3 + 2];
-            if (preg_match($badPeerRegex, $peerID)) {
+        for ($i = 0; $i < count($reqPeerList->strings); $i+=5) {
+            $peerHashID = $reqPeerList->strings[$i];
+            $peerIP = $reqPeerList->strings[$i + 1];
+            $peerID = $reqPeerList->strings[$i + 2];
+            $isBanned = $reqPeerList->i8s[$i];
+            $isSnubbed = $reqPeerList->i8s[$i + 1];
+            if (preg_match($badPeerRegex, $peerID) && !$isBanned && !$isSnubbed) {
                 $reqBanPeer = NULL;
                 if ($shadowBan) {
                     $reqBanPeer = new rXMLRPCRequest(array(
@@ -46,7 +48,7 @@ if (chdir($path)) {
                 if ($logToFile) {
                     $dt = (new DateTime())->format(DateTime::ATOM);
                     $logStream = fopen("log.txt", "a");
-                    fwrite($logStream, $dt . " " . $peerIP . " " . $peerID . PHP_EOL);
+                    fwrite($logStream, $dt . " " . $magnetHash . " " . $peerIP . " " . $peerID . PHP_EOL);
                     fclose($logStream);
                 }
             }
