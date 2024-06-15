@@ -16,20 +16,18 @@ if (chdir($path)) {
     }
     foreach ($reqDownloadList->strings as $magnetHash) {
         $reqPeerList = new rXMLRPCRequest(array(
-            new rXMLRPCCommand("p.multicall", array($magnetHash, "", getCmd("p.id="), getCmd("p.address="), getCmd("p.id_html="), getCmd("p.banned="), getCmd("p.snubbed="))),
+            new rXMLRPCCommand("p.multicall", array($magnetHash, "", getCmd("p.id="), getCmd("p.address="), getCmd("p.id_html="))),
         ));
         $reqPeerList->setParseByTypes();
         if (!$reqPeerList->success()) {
             // error
             exit(0);
         }
-        for ($i = 0; $i < count($reqPeerList->strings); $i+=5) {
+        for ($i = 0; $i < count($reqPeerList->strings); $i+=3) {
             $peerHashID = $reqPeerList->strings[$i];
             $peerIP = $reqPeerList->strings[$i + 1];
             $peerID = $reqPeerList->strings[$i + 2];
-            $isBanned = $reqPeerList->i8s[$i];
-            $isSnubbed = $reqPeerList->i8s[$i + 1];
-            if (preg_match($badPeerRegex, $peerID) && !$isBanned && !$isSnubbed) {
+            if (preg_match($badPeerRegex, $peerID)) {
                 $reqBanPeer = NULL;
                 if ($shadowBan) {
                     $reqBanPeer = new rXMLRPCRequest(array(
