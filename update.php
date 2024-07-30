@@ -49,10 +49,7 @@ if (chdir($path)) {
                     exit(0);
                 }
                 if ($logToFile) {
-                    $dt = (new DateTime())->format(DateTime::ATOM);
-                    $logStream = fopen("log.txt", "a");
-                    fwrite($logStream, $dt . " " . $magnetHash . " " . $peerIP . " " . $peerID . PHP_EOL);
-                    fclose($logStream);
+                    FileUtil::toLog("banbadpeer: " . $dt . " " . $magnetHash . " " . $peerIP . " " . $peerID);
                 }
             }
         }
