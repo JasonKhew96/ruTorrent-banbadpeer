@@ -49,7 +49,7 @@ if (chdir($path)) {
                     exit(0);
                 }
                 if ($logToFile) {
-                    FileUtil::toLog("banbadpeer: " . $dt . " " . $magnetHash . " " . $peerIP . " " . $peerID);
+                    FileUtil::toLog("banbadpeer: banned " . $magnetHash . " " . $peerIP . " " . $peerID . " " . $isBanned . " " . $isSnubbed);
                 }
             }
         }
