@@ -16,7 +16,7 @@ if (chdir($path)) {
     }
     foreach ($reqDownloadList->strings as $magnetHash) {
         $req = new rXMLRPCRequest(array(
-            new rXMLRPCCommand("p.multicall", array($magnetHash, "", getCmd("p.id="), getCmd("p.address="), getCmd("p.id_html="), getCmd("p.banned="), getCmd("p.is_snubbed="))),
+            new rXMLRPCCommand("p.multicall", array($magnetHash, "", getCmd("p.id="), getCmd("p.address="), getCmd("p.id_html="), getCmd("p.completed_percent="), getCmd("p.up_total="), getCmd("p.banned="), getCmd("p.is_snubbed="))),
         ));
         if (!$req->success()) {
             // error
@@ -26,12 +26,14 @@ if (chdir($path)) {
             $peerHashID = $req->val[$i];
             $peerIP = $req->val[$i + 1];
             $peerID = $req->val[$i + 2];
-            $isBanned = $req->val[$i + 3];
-            $isSnubbed = $req->val[$i + 4];
-            if ((!$shadowBan && $isBanned) || ($shadowBan && $isSnubbed)) {
+            $completedPercent = $req->val[$i + 3];
+            $upTotal = $req->val[$i + 4];
+            $isBanned = $req->val[$i + 5];
+            $isSnubbed = $req->val[$i + 6];
+            if ($shadowBan && $isSnubbed) {
                 continue;
             }
-            if (preg_match($badPeerRegex, $peerID)) {
+            if (preg_match($badPeerRegex, $peerID) || ($completedPercent == 0 && $upTotal > 52428800)) {
                 $reqBanPeer = NULL;
                 if ($shadowBan) {
                     $reqBanPeer = new rXMLRPCRequest(array(
@@ -48,7 +50,7 @@ if (chdir($path)) {
                     exit(0);
                 }
                 if ($logToFile) {
-                    FileUtil::toLog("banbadpeer: banned " . $magnetHash . " " . $peerIP . " " . $peerID);
+                    FileUtil::toLog("banbadpeer: banned " . $magnetHash . " " . $peerIP . " " . $peerID . " " . $completedPercent . " " . $upTotal);
                 }
             }
         }
