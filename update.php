@@ -28,7 +28,7 @@ if (chdir($path)) {
             $peerID = $req->val[$i + 2];
             $isBanned = $req->val[$i + 3];
             $isSnubbed = $req->val[$i + 4];
-            if ($isBanned || $isSnubbed) {
+            if ((!$shadowBan && $isBanned) || ($shadowBan && $isSnubbed)) {
                 continue;
             }
             if (preg_match($badPeerRegex, $peerID)) {
